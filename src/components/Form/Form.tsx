@@ -1,42 +1,65 @@
 import "./Form.css"
 import { useState, useEffect } from "react";
 
+const api_url="http://localhost:3010"
 
 function Form(){
     const [email,setEmail]= useState<string>("");
     const [password,setPassword]= useState<string>("");
     const [showing,setShowing]= useState<boolean>(false);
+    const [user,setUser]=useState<any>(null);
 
-    const user={
-        email:"algo@nose.com",
-        password:"1234"
+
+    
+const login=async ({email,password}:{email:string,password:string} )=>{
+    try{
+        const response=await fetch(`${api_url}/api/v1/auth/login`,{
+            method:'POST',
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({email,password})
+
+        });
+        
+
+        if(response.status===200 ){
+            const data=await response.json();
+            setUser(data)
+        }else{
+            alert("usuario y contraseña incorrecto")
+        }
+        
+        console.log(response.status)
+    }catch(err){
+        console.error(err)
     }
+}
+
+    
     const handleChange=(stateUpdate)=>{
         return(event)=>{
             stateUpdate(event.target.value);
         }
     }
     const handleClick=()=>{
-        if(email===user.email && password===user.password){
-            alert("login exitoso")
-        }else{
-            alert("informacion incorrecta")
-        }
-        setShowing(!showing);
+        login({email,password})
+        setShowing(true);
     }
-    useEffect(()=>{
-        
-
-    },[email,password]);
+    
     return(
         <>
         <section>
             {
                 
-                showing && (
+                user && (
+                    //to do hacer que muestre monstruos en vez de el user
                     <>
-                    <p>monstruo: {email}</p>
-                    <p>id: {password}</p>
+
+                    <p>monstruo: {user.user.email}</p>
+                    <p>nombre: {user.user.name}</p>
+                    <p>id: {user.user._id}</p>
+                    
                     </>
                 )
             }
@@ -51,7 +74,7 @@ function Form(){
             <span className="inputContainer">
             
                 <label htmlFor="password">contraseña</label>
-                <input type="p" id="password" name="password" value={password} onChange={handleChange(setPassword)}/>
+                <input type="password" id="password" name="password" value={password} onChange={handleChange(setPassword)}/>
             </span>
             <button onClick={handleClick}>login</button>
         </section>

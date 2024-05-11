@@ -8,9 +8,42 @@ function Form(){
     const [password,setPassword]= useState<string>("");
     const [showing,setShowing]= useState<boolean>(false);
     const [user,setUser]=useState<any>(null);
+    const [monster,setMonster]=useState<any>(null);
+    const [count,setCount]=useState<number>(0);
+    useEffect(()=>{
+        const storagedUserString=window.localStorage.getItem("user");
+        const storagedUser=JSON.parse(storagedUserString);
+        setUser(storagedUser);
+        //console.log(storagedUser);
+    },[]);
 
 
-    
+
+const monsters=async ()=>{
+    try{
+        const response=await fetch(`${api_url}/api/v1/monsters`,{
+            
+            headers:{
+                'Authorization':`Bearer ${user.token}`
+            },
+            
+
+        });
+        const data=await response.json();
+        if(data){
+            
+            
+            setMonster(data);
+            console.log(data[0].name)
+        }
+        //console.log(data)
+        
+        
+    }catch(err){
+        console.error(err)
+    }
+}
+
 const login=async ({email,password}:{email:string,password:string} )=>{
     try{
         const response=await fetch(`${api_url}/api/v1/auth/login`,{
@@ -26,8 +59,10 @@ const login=async ({email,password}:{email:string,password:string} )=>{
         if(response.status===200 ){
             const data=await response.json();
             setUser(data)
+            window.localStorage.setItem("user",JSON.stringify(data));
+            
         }else{
-            alert("usuario y contraseña incorrecto")
+            alert("usuario y contraseña incorrecto pero en login")
         }
         
         console.log(response.status)
@@ -43,25 +78,30 @@ const login=async ({email,password}:{email:string,password:string} )=>{
         }
     }
     const handleClick=()=>{
-        login({email,password})
+        //login({email,password})
+
+        monsters()
         setShowing(true);
     }
     
     return(
+        
         <>
         <section>
+            //ToDo usar ciclo while para insertar todos los monstruos del arreglo
             {
                 
-                user && (
+                monster && (
                     //to do hacer que muestre monstruos en vez de el user
                     <>
 
-                    <p>monstruo: {user.user.email}</p>
-                    <p>nombre: {user.user.name}</p>
-                    <p>id: {user.user._id}</p>
+                    <p>monstruo: {monster[0].name}</p>
+                    <p>size: {monster[0].size}</p>
+                    <p>body: {monster[0].body}</p>
                     
                     </>
                 )
+                
             }
         </section>
         <section className="formContainer">

@@ -87,11 +87,34 @@ const GameDetail = ({ user }) => {
         }
     };
 
+    const deleteGame = async () => {
+        try {
+            const response = await fetch(`http://localhost:3010/api/v1/games/${game._id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${user.token}`
+                }
+            });
+
+            if (response.ok) {
+                console.log('Juego eliminado correctamente');
+                window.location.href = '/'; // Redirigir a la página principal o alguna otra página después de eliminar
+            } else {
+                console.error('Error al eliminar el juego.');
+            }
+        } catch (error) {
+            console.error('Error en la operación:', error);
+        }
+    };
+
     if (!game) return <p>Cargando...</p>;
 
     return (
         <div>
             <h1>{game.name}</h1>
+            
+            <button onClick={deleteGame}>Eliminar Juego</button>
+
             <h2>Monstruos</h2>
             {monsters.map((monster) => (
                 <div key={monster._id}>
@@ -122,3 +145,4 @@ const GameDetail = ({ user }) => {
 };
 
 export default GameDetail;
+

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header';
 import Form from './components/Form/Form';
@@ -7,6 +7,8 @@ import Register from './components/Register';
 import Games from './components/Games';
 import AddGame from './components/AddGame';
 import GameDetail from './components/GameDetail';
+import MonstersList from './components/MonstersList';
+import AddMonster from './components/AddMonster';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -28,6 +30,8 @@ function App() {
                     <Route path="/games" element={user ? <Games user={user} /> : <Navigate to="/login" />} />
                     <Route path="/games/new" element={user ? <AddGame user={user} /> : <Navigate to="/login" />} />
                     <Route path="/games/:id" element={user ? <GameDetail user={user} /> : <Navigate to="/login" />} />
+                    <Route path="/monsters" element={user ? <MonstersList user={user} /> : <Navigate to="/login" />} />
+                    <Route path="/monsters/new" element={user ? <AddMonster user={user} /> : <Navigate to="/login" />} />
                     <Route path="/" element={<Navigate to="/login" />} />
                 </Routes>
             </main>

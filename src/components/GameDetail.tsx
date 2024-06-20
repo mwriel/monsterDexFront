@@ -107,6 +107,40 @@ const GameDetail = ({ user }) => {
         }
     };
 
+    const deleteMonsterFromGame = async (monsterName) => {
+        try {
+            const response = await fetch(`http://localhost:3010/api/v1/games/removemonster`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
+                body: JSON.stringify({ game: game.name, monster: monsterName })
+            });
+
+            if (response.ok) {
+                const updatedGame = await response.json();
+                setGame(updatedGame);
+
+                // Update the list of monsters by filtering out the deleted monster
+                setMonsters(monsters.filter(monster => monster.name !== monsterName));
+
+                // Fetch the updated list of all monsters to refresh
+                const allMonstersResponse = await fetch(`http://localhost:3010/api/v1/monsters`, {
+                    headers: {
+                        'Authorization': `Bearer ${user.token}`
+                    }
+                });
+                const allMonstersData = await allMonstersResponse.json();
+                setAllMonsters(allMonstersData);
+            } else {
+                console.error('Error al eliminar el monstruo del juego.');
+            }
+        } catch (error) {
+            console.error('Error en la operación:', error);
+        }
+    };
+
     if (!game) return <p>Cargando...</p>;
 
     return (
@@ -115,7 +149,7 @@ const GameDetail = ({ user }) => {
             
             <button onClick={deleteGame}>Eliminar Juego</button>
 
-            <h2>Monstruos</h2>
+            <h2>Monstruos en el Juego</h2>
             {monsters.map((monster) => (
                 <div key={monster._id}>
                     <p>{monster.name}</p>
@@ -123,26 +157,25 @@ const GameDetail = ({ user }) => {
                     <p>Body: {monster.body}</p>
                     <p>Debilidades: {monster.weakTo.join(', ')}</p>
                     <p>Resistencias: {monster.resistantTo.join(', ')}</p>
+                    <button onClick={() => deleteMonsterFromGame(monster.name)}>Eliminar del Juego</button>
                 </div>
             ))}
-            {allMonsters.length > 0 ? (
-                <div>
-                    <select value={selectedMonster} onChange={(e) => setSelectedMonster(e.target.value)}>
-                        <option value="" disabled>Selecciona un monstruo para añadir</option>
-                        {allMonsters
-                            .filter(monster => !monsters.some(m => m.name === monster.name)) // Exclude already added monsters
-                            .map((monster) => (
-                                <option key={monster._id} value={monster.name}>{monster.name}</option>
-                            ))}
-                    </select>
-                    <button onClick={addMonsterToGame} disabled={!selectedMonster}>Añadir</button>
-                </div>
-            ) : (
-                <p>No hay más monstruos disponibles para añadir.</p>
-            )}
+
+            <h2>Seleccionar Monstruo para Añadir</h2>
+            <select value={selectedMonster} onChange={(e) => setSelectedMonster(e.target.value)}>
+                <option value="" disabled>Selecciona un monstruo para añadir</option>
+                {allMonsters
+                    .filter(monster => !monsters.some(m => m.name === monster.name)) // Exclude already added monsters
+                    .map((monster) => (
+                        <option key={monster._id} value={monster.name}>{monster.name}</option>
+                    ))}
+            </select>
+            <button onClick={addMonsterToGame} disabled={!selectedMonster}>Añadir Monstruo</button>
+            
         </div>
     );
 };
 
 export default GameDetail;
+
 
